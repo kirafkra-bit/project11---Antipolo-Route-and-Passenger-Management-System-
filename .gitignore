@@ -1,0 +1,18 @@
+# Sensitive config
+config/database.php
+
+# User uploads (keep folder structure, ignore contents)
+uploads/driver_documents/*
+!uploads/driver_documents/.htaccess
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
