@@ -16,10 +16,10 @@
     }
 
     function actions(id, extra) {
-        return '<button class="btn btn-ghost btn-small" data-edit="' + id + '">Edit</button> ' +
-            '<button class="btn btn-danger btn-small" data-del="' + id + '">Delete</button>' +
-            (extra || '');
-    }
+    return '<button class="btn-edit" data-edit="' + id + '">Edit</button> ' +
+        '<button class="btn btn-danger btn-small" data-del="' + id + '">Delete</button>' +
+        (extra || '');
+}
 
     async function adminOverview() {
         const data = await api('/api/dashboard.php');
@@ -60,11 +60,13 @@
             ui.renderRows(tbody, rows, function (row) {
                 return '<tr>' +
                     '<td>' + ui.escapeHtml(row.username) + '</td>' +
-                    '<td><span class="chip">' + ui.escapeHtml(row.role) + '</span></td>' +
+                    '<td>' + ui.statusChip(row.role) + '</td>' +
                     '<td>' + ui.escapeHtml(row.created_at) + '</td>' +
                     '<td>' + actions(row.id) + '</td></tr>';
             });
         }
+
+        usersPageLoad = load;
 
         document.getElementById('add-user').addEventListener('click', function () {
             ui.openModal('Create account', userForm());
@@ -330,43 +332,7 @@
     async function start() {
         try {
             if (page === 'dashboard') await adminOverview();
-            if (page === 'users') {
-                const tbody = document.querySelector('#users-table tbody');
-                async function load(q) {
-                    const query = q ? ('?q=' + encodeURIComponent(q)) : '';
-                    const rows = await api('/api/users.php' + query);
-                    ui.renderRows(tbody, rows, function (row) {
-                        return '<tr><td>' + ui.escapeHtml(row.username) + '</td><td><span class="chip">' +
-                            ui.escapeHtml(row.role) + '</span></td><td>' + ui.escapeHtml(row.created_at) +
-                            '</td><td>' + actions(row.id) + '</td></tr>';
-                    });
-                }
-                usersPageLoad = load;
-                document.getElementById('add-user').addEventListener('click', function () {
-                    ui.openModal('Create account', userForm());
-                    wireUserForm();
-                });
-                tbody.addEventListener('click', async function (event) {
-                    const editId = event.target.getAttribute('data-edit');
-                    const delId = event.target.getAttribute('data-del');
-                    if (editId) {
-                        const row = await api('/api/users.php?id=' + editId);
-                        ui.openModal('Edit account', userForm(row));
-                        wireUserForm(row);
-                    }
-                    if (delId && window.confirm('Delete this account?')) {
-                        try {
-                            await api('/api/users.php', { method: 'DELETE', body: { id: delId } });
-                            ui.toast('Account deleted.');
-                            load(document.getElementById('user-search').value);
-                        } catch (err) {
-                            ui.toast(err.message);
-                        }
-                    }
-                });
-                bindSearch('user-search', load);
-                await load();
-            }
+            if (page === 'users') await usersPage();
             if (page === 'passengers') {
                 await crudPage({
                     endpoint: '/api/passengers.php',
@@ -395,10 +361,9 @@
                     editTitle: 'Edit driver',
                     form: driverForm,
                     row: function (row) {
-                        const badge = row.status === 'active' ? 'badge-ok' : 'badge-off';
                         return '<tr><td>' + ui.escapeHtml(row.full_name) + '</td><td>' + ui.escapeHtml(row.license_number) +
-                            '</td><td>' + ui.escapeHtml(row.contact_number) + '</td><td><span class="badge ' + badge + '">' +
-                            ui.escapeHtml(row.status) + '</span></td><td>' + actions(row.id) + '</td></tr>';
+                            '</td><td>' + ui.escapeHtml(row.contact_number) + '</td><td>' + ui.statusChip(row.status) +
+                            '</td><td>' + actions(row.id) + '</td></tr>';
                     },
                 });
             }

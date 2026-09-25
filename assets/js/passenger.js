@@ -92,7 +92,7 @@
             list.innerHTML = rows.length ? rows.map(function (row) {
                 return '<article class="ticket">' +
                     '<div class="complaint-heading"><strong>' + ui.escapeHtml(row.subject) + '</strong>' +
-                    '<span class="chip">' + ui.escapeHtml(row.status.replace('_', ' ')) + '</span></div>' +
+                    ui.statusChip(row.status) + '</div>' +
                     '<p class="muted">' + ui.escapeHtml(row.category.replace('_', ' ')) + ' · ' + ui.escapeHtml(row.created_at) + '</p>' +
                     '<p>' + ui.escapeHtml(row.description) + '</p>' +
                     (row.admin_response ? '<p><strong>Operations response:</strong> ' + ui.escapeHtml(row.admin_response) + '</p>' : '') +

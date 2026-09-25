@@ -66,6 +66,17 @@
         return '₱' + Number(value).toFixed(2);
     }
 
+    function statusChip(status) {
+        var safeStatus = String(status == null ? '' : status);
+        return '<span class="chip status-' + safeStatus + '">' +
+            escapeHtml(safeStatus.replace(/_/g, ' ')) + '</span>';
+    }
+
+    function reviewButton(id, label) {
+        return '<button class="btn-review" data-id="' + escapeHtml(id) + '">' +
+            escapeHtml(label || 'Review') + '</button>';
+    }
+
     window.PNUI = {
         toast: toast,
         openModal: openModal,
@@ -74,5 +85,7 @@
         formValues: formValues,
         renderRows: renderRows,
         money: money,
+        statusChip: statusChip,
+        reviewButton: reviewButton,
     };
 })();

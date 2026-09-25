@@ -14,9 +14,9 @@
                 return '<tr><td>' + ui.escapeHtml(row.passenger_name) + '</td>' +
                     '<td>' + ui.escapeHtml(row.category.replace('_', ' ')) + '</td>' +
                     '<td>' + ui.escapeHtml(row.subject) + '</td>' +
-                    '<td><span class="chip">' + ui.escapeHtml(row.status.replace('_', ' ')) + '</span></td>' +
+                    '<td>' + ui.statusChip(row.status) + '</td>' +
                     '<td>' + ui.escapeHtml(row.created_at) + '</td>' +
-                    '<td><button class="btn btn-ghost btn-small" data-id="' + row.id + '">Review</button></td></tr>';
+                    '<td>' + ui.reviewButton(row.id) + '</td></tr>';
             });
         }).catch(function (err) {
             ui.toast(err.message);
