@@ -16,3 +16,6 @@ uploads/driver_documents/*
 Thumbs.db
 .vscode/
 .idea/
+
+# database
+sql/
