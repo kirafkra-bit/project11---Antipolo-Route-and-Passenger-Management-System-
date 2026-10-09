@@ -106,8 +106,12 @@ function authenticate(PDO $pdo, string $username, string $password): array
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
 
-    if (!$user || !password_verify($password, $user['password'])) {
-        json_error('Invalid login credentials.', 401);
+    if (!$user) {
+        json_error('No account was found with that username.', 404);
+    }
+
+    if (!password_verify($password, $user['password'])) {
+        json_error('The password is incorrect.', 422);
     }
 
     $profile = load_role_profile($pdo, (int) $user['id'], $user['role']);
@@ -136,7 +140,7 @@ function dashboard_path_for_role(string $role): string
         return '/admin/dashboard.php';
     }
     if ($role === 'driver') {
-        return '/driver/dashboard.php';
+        return '/driver/announcements.php';
     }
     return '/passenger/dashboard.php';
 }

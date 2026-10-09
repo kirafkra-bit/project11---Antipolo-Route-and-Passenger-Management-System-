@@ -42,7 +42,13 @@ try {
             if (empty($user['driver_id'])) {
                 json_error('Driver profile was not found for this account.', 404);
             }
-            $stmt = $pdo->prepare(jeepney_select_sql() . ' WHERE j.drivers_id = :id');
+            $stmt = $pdo->prepare(
+                jeepney_select_sql() . " INNER JOIN drivers assignment ON assignment.id = j.drivers_id
+                 WHERE j.drivers_id = :id
+                   AND assignment.route_assignment_status = 'approved'
+                   AND assignment.route_id IS NOT NULL
+                   AND j.route_id = assignment.route_id"
+            );
             $stmt->execute(['id' => (int) $user['driver_id']]);
             json_success($stmt->fetchAll());
         }

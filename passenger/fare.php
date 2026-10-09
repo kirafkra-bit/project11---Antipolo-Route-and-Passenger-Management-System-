@@ -11,8 +11,8 @@ layout_start($user, ['title' => 'Estimate fare', 'active' => 'fare', 'page' => '
     #antipolo-map { height: 360px; border-radius: 12px; margin: 16px 0; }
     .map-status { min-height: 1.4em; }
 </style>
-<section class="grid two">
-    <article class="card">
+<section class="fare-layout">
+    <article class="card fare-panel">
         <h3>LTFRB-style estimate</h3>
         <p class="muted">Choose two Antipolo landmarks to calculate a road distance for the fare estimate.</p>
         <div class="map-search">

@@ -4,41 +4,12 @@ require_once dirname(__DIR__) . '/includes/web.php';
 $user = require_web_role(['passenger']);
 layout_start($user, ['title' => 'Find a jeepney', 'active' => 'search', 'page' => 'search']);
 ?>
-<section class="grid two">
-    <article class="card">
-        <h3>Search published routes</h3>
-        <form id="search-form" class="stack">
-            <div>
-                <label>Keyword</label>
-                <input name="q" placeholder="Route or destination">
-            </div>
-            <div>
-                <label>Pickup</label>
-                <input name="pickup">
-            </div>
-            <div>
-                <label>Drop-off</label>
-                <input name="drop_off">
-            </div>
-            <div>
-                <label>Vehicle</label>
-                <select name="vehicle_type">
-                    <option value="traditional">Traditional Jeepney</option>
-                    <option value="modern">Modern Jeepney</option>
-                </select>
-            </div>
-            <div>
-                <label>Passenger type</label>
-                <select name="passenger_type">
-                    <option value="regular">Regular</option>
-                    <option value="student">Student</option>
-                    <option value="senior">Senior Citizen</option>
-                    <option value="pwd">PWD</option>
-                </select>
-            </div>
-            <button class="btn" type="submit">Search</button>
-        </form>
-    </article>
-    <div id="search-results" class="stack"></div>
+<header class="page-heading"><h2>Find a jeepney</h2><p>Browse jeepneys and view route, fare, and driver information.</p></header>
+<section class="card search-panel">
+    <form id="search-form" class="search-toolbar" role="search">
+        <label class="search-input-wrap" for="route-query"><i class="bi bi-search" aria-hidden="true"></i><input id="route-query" name="q" type="search" placeholder="Search by route, driver, or plate number" autocomplete="off"></label>
+        <span id="search-result-count" class="search-result-count" aria-live="polite">Loading routes…</span>
+    </form>
+    <div id="search-results" class="search-results"><p class="empty">Loading available jeepneys…</p></div>
 </section>
 <?php layout_end(['passenger.js']); ?>

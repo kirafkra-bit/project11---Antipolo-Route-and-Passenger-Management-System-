@@ -158,7 +158,7 @@ function handle_pdo_exception(PDOException $e, string $fallback): void
 
     if ($sqlState === '23000') {
         if (stripos($message, 'uq_users_username') !== false) {
-            json_error('That username is already taken.', 409);
+            json_error('That username is already registered. Sign in or choose a different username.', 409);
         }
         if (stripos($message, 'uq_drivers_license_number') !== false) {
             json_error('License number already exists.', 409);

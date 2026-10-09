@@ -20,9 +20,13 @@ if ($method !== 'GET') {
 function driver_select_sql(): string
 {
     return 'SELECT d.id, d.full_name, d.contact_number, d.license_number, d.status,
+                   d.requested_route_id, d.route_id, d.route_assignment_status,
+                   requested.route_name AS requested_route_name, assigned.route_name AS assigned_route_name,
                    d.created_at, d.users_id, u.username
             FROM drivers d
-            INNER JOIN users u ON u.id = d.users_id';
+            INNER JOIN users u ON u.id = d.users_id
+            LEFT JOIN routes requested ON requested.id = d.requested_route_id
+            LEFT JOIN routes assigned ON assigned.id = d.route_id';
 }
 
 function fetch_driver(PDO $pdo, int $id): ?array
@@ -51,7 +55,11 @@ try {
             if (empty($user['driver_id'])) {
                 json_error('Driver profile was not found for this account.', 404);
             }
-            json_success(fetch_driver($pdo, (int) $user['driver_id']));
+            $driver = fetch_driver($pdo, (int) $user['driver_id']);
+            if (!$driver) {
+                json_error('Driver profile was not found for this account.', 404);
+            }
+            json_success($driver);
         }
 
         require_role(['admin']);

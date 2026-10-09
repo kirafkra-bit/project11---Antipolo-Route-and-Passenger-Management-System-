@@ -42,9 +42,19 @@ if (!in_array($role, ['passenger', 'driver'], true)) {
     json_error('Invalid account type.', 422);
 }
 
+if ($role === 'driver') {
+    require_fields($input, ['requested_route_id']);
+}
+
 $passwordHash = hash_password($password);
 
 $pdo = get_pdo();
+if ($role === 'driver') {
+    $requestedRouteId = to_int($input['requested_route_id'], 'requested_route_id', false);
+    if (!record_exists($pdo, 'routes', 'id', $requestedRouteId)) {
+        json_error('The requested route was not found. Please choose an available route.', 422);
+    }
+}
 
 try {
     $documentFiles = [];
@@ -143,6 +153,8 @@ try {
                     contact_number,
                     license_number,
                     status,
+                    requested_route_id,
+                    route_assignment_status,
                     license_file,
                     valid_id_file,
                     or_cr_file,
@@ -157,6 +169,8 @@ try {
                     :contact_number,
                     :license_number,
                     :status,
+                    :requested_route_id,
+                    :route_assignment_status,
                     :license_file,
                     :valid_id_file,
                     :or_cr_file,
@@ -172,6 +186,8 @@ try {
             'contact_number' => $contact !== '' ? $contact : null,
             'license_number' => $licenseNumber,
             'status'         => 'pending',
+            'requested_route_id' => $requestedRouteId,
+            'route_assignment_status' => 'pending',
             'license_file'   => $documentFiles['license'],
             'valid_id_file'  => $documentFiles['valid_id'],
             'or_cr_file'     => $documentFiles['or_cr'],

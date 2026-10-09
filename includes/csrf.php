@@ -16,7 +16,7 @@ function csrf_validate(?string $token): bool
 {
     if ($token === null || $token === '') {
         return false;
-    }
+    } 
 
     $sessionToken = $_SESSION['csrf_token'] ?? '';
     return is_string($sessionToken) && hash_equals($sessionToken, $token);

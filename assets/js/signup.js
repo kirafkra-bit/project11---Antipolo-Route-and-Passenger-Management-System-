@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleInputs = form.querySelectorAll('input[name="role"]');
     const driverAttachments = document.getElementById('driverAttachments');
     const passengerAttachment = document.getElementById('passengerAttachment');
+    const requestedRoute = document.getElementById('requested_route_id');
     const submitButton = document.getElementById('signup-submit');
     const documentsModal = document.getElementById('driver-documents-modal');
     const uploadDocumentsButton = document.getElementById('upload-documents');
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             license.required = true;
             validId.required = true;
             extraDocuments.forEach(function (input) { input.required = true; });
+            requestedRoute.required = true;
             submitButton.textContent = 'Submit Driver Application';
         } else {
             driverAttachments.hidden = true;
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
             license.required = false;
             validId.required = false;
             extraDocuments.forEach(function (input) { input.required = false; });
+            requestedRoute.required = false;
             submitButton.textContent = 'Create passenger account';
             closeDocumentsModal();
         }
@@ -65,30 +68,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Show or hide driver requirements
+    uploadDocumentsButton.addEventListener('click', openDocumentsModal);
+    closeDocumentsButton.addEventListener('click', closeDocumentsModal);
+    saveDocumentsButton.addEventListener('click', function () {
+        if (!allDriverDocumentsUploaded()) {
+            errorBox.hidden = false;
+            errorBox.textContent = 'Please upload all required driver documents.';
+            return;
+        }
+        errorBox.hidden = true;
+        syncUploadButton();
+        closeDocumentsModal();
+    });
+    documentsModal.addEventListener('click', function (event) {
+        if (event.target === documentsModal) closeDocumentsModal();
+    });
+    driverDocuments.forEach(function (input) {
+        input.addEventListener('change', syncUploadButton);
+    });
+
     form.addEventListener('change', function (event) {
         if (event.target.matches('input[name="role"]')) {
             syncDriverRequirements();
-
-            uploadDocumentsButton.addEventListener('click', openDocumentsModal);
-            closeDocumentsButton.addEventListener('click', closeDocumentsModal);
-            saveDocumentsButton.addEventListener('click', function () {
-                if (!allDriverDocumentsUploaded()) {
-                    errorBox.hidden = false;
-                    errorBox.textContent = 'Please upload all required driver documents.';
-                    return;
-                }
-                errorBox.hidden = true;
-                syncUploadButton();
-                closeDocumentsModal();
-            });
-            documentsModal.addEventListener('click', function (event) {
-                if (event.target === documentsModal) {
-                    closeDocumentsModal();
-                }
-            });
-            driverDocuments.forEach(function (input) {
-                input.addEventListener('change', syncUploadButton);
-            });
         }
     });
     syncDriverRequirements();
@@ -105,6 +106,20 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        if (form.username.value.trim().length < 3) {
+            errorBox.hidden = false;
+            errorBox.textContent = 'Username must be at least 3 characters.';
+            form.username.focus();
+            return;
+        }
+
+        if (form.password.value.length < 8) {
+            errorBox.hidden = false;
+            errorBox.textContent = 'Password must be at least 8 characters.';
+            form.password.focus();
+            return;
+        }
+
         // Create FormData instead of a normal JavaScript object
         const body = new FormData();
 
@@ -118,6 +133,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Add driver attachments
         if (selectedRole === 'driver') {
+            if (!requestedRoute.value) {
+                errorBox.hidden = false;
+                errorBox.textContent = 'Please select the route you are requesting.';
+                requestedRoute.focus();
+                return;
+            }
             if (!license.files[0] || !validId.files[0] || extraDocuments.some(function (input) { return !input.files[0]; })) {
                 errorBox.hidden = false;
                 errorBox.textContent = 'Please upload all required driver documents.';
@@ -127,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body.append('license', license.files[0]);
             body.append('valid_id', validId.files[0]);
             extraDocuments.forEach(function (input) { body.append(input.name, input.files[0]); });
+            body.append('requested_route_id', requestedRoute.value);
         } else {
             if (!passengerValidId.files[0]) {
                 errorBox.hidden = false;
@@ -136,6 +158,9 @@ document.addEventListener('DOMContentLoaded', function () {
             body.append('passenger_valid_id', passengerValidId.files[0]);
         }
 
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating account...';
         try {
             const data = await PoloNav.api('/api/register.php', {
                 method: 'POST',
@@ -147,6 +172,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {
             errorBox.hidden = false;
             errorBox.textContent = err.message;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
         }
     });
 });

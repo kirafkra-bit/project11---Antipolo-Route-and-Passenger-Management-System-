@@ -4,30 +4,23 @@ require_once dirname(__DIR__) . '/includes/web.php';
 $user = require_web_role(['driver']);
 layout_start($user, ['title' => 'Shift board', 'active' => 'dashboard', 'page' => 'dashboard']);
 ?>
-<section class="grid two">
-    <article class="card hero">
+<header class="page-heading"><h2>Shift board</h2><p>Your current shift status and recent activity.</p></header>
+<section class="driver-shift-layout">
+    <article class="driver-hero">
         <p class="eyebrow">Driver cab</p>
+        <span id="driver-avatar" class="driver-avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
         <h2 id="driver-name">Driver</h2>
-        <p>This is not the operations console. You can log trips for your assigned jeepney. You cannot edit routes, accounts, or other drivers.</p>
+        <p>License No. <span id="driver-license">Loading...</span></p>
+        <div class="driver-hero-tags"><span id="driver-status-chip" class="chip">Loading...</span><span id="driver-route-chip" class="chip">Route not assigned</span></div>
     </article>
-    <article class="card">
-        <h3>Your status</h3>
-        <p>License <strong id="driver-license">—</strong></p>
-        <p>Duty <span class="chip" id="driver-status">—</span></p>
-        <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:12px;">
-            <div class="stat-card"><h3>My trips</h3><p id="stat-trips">—</p></div>
-            <div class="stat-card"><h3>Assigned units</h3><p id="stat-jeepneys">—</p></div>
-        </div>
-    </article>
+    <div class="driver-summary">
+        <article class="card driver-summary-card"><span>Duty status</span><strong id="driver-status">Loading...</strong></article>
+        <article class="card driver-summary-card"><span>My trips today</span><strong id="stat-trips">0</strong></article>
+        <article class="card driver-summary-card"><span>Assigned unit</span><strong id="driver-assigned-unit">No unit assigned</strong></article>
+    </div>
 </section>
-<section class="grid two" style="margin-top:16px;">
-    <div id="jeepney-cards" class="grid"></div>
-    <article class="card">
-        <h3>Recent trips you logged</h3>
-        <table id="recent-trips">
-            <thead><tr><th>Path</th><th>Passenger</th><th>Plate</th><th>Count</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </article>
+<section class="card driver-recent">
+    <h3>Recent trips</h3>
+    <div id="recent-trips-list"><p class="muted" style="padding:12px 18px">Loading recent trips...</p></div>
 </section>
-<?php layout_end(['driver.js']); ?>
+<?php layout_end(['driver.js', 'driver-sidebar.js']); ?>

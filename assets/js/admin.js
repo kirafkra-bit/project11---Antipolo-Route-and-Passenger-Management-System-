@@ -273,12 +273,25 @@
         });
     }
 
-    function routeForm(row) {
+    function routeForm(row, points) {
         row = row || {};
+        points = points || [];
+        function pointOptions(selected) {
+            return '<option value="">Not configured</option>' + points.map(function (point) {
+                return '<option value="' + ui.escapeHtml(point.id) + '"' +
+                    (String(selected || '') === String(point.id) ? ' selected' : '') + '>' +
+                    ui.escapeHtml(point.name) + '</option>';
+            }).join('');
+        }
         return '<form id="entity-form" class="form-grid">' +
             '<input type="hidden" name="id" value="' + ui.escapeHtml(row.id || '') + '">' +
             '<div class="full"><label>Route name</label><input name="route_name" required value="' + ui.escapeHtml(row.route_name || '') + '"></div>' +
-            '<div class="full"><label>Destinations</label><input name="destinations" value="' + ui.escapeHtml(row.destinations || '') + '"></div>' +
+            '<div class="full"><label>Destinations / route stops</label><input name="destinations" value="' + ui.escapeHtml(row.destinations || '') + '">' +
+                '<small class="muted">List served areas here (for example, Antipolo Simbahan, Masinag). Drivers can check traffic for listed areas.</small></div>' +
+            '<div><label>Traffic pickup checkpoint</label><select name="pickup_point_id">' +
+                pointOptions(row.pickup_point_id) + '</select></div>' +
+            '<div><label>Traffic drop-off checkpoint</label><select name="dropoff_point_id">' +
+                pointOptions(row.dropoff_point_id) + '</select></div>' +
             '<div><label>Distance (km)</label><input name="distance" value="' + ui.escapeHtml(row.distance || '') + '"></div>' +
             '<div><label>Stored fare</label><input name="fare" value="' + ui.escapeHtml(row.fare || '0') + '"></div>' +
             '<div><label>Latitude</label><input name="latitude" value="' + ui.escapeHtml(row.latitude || '') + '"></div>' +
@@ -369,6 +382,7 @@
             }
             if (page === 'jeepneys') await jeepneyPage();
             if (page === 'routes') {
+                const points = await api('/api/routes.php?view=points');
                 await crudPage({
                     endpoint: '/api/routes.php',
                     table: '#data-table',
@@ -376,7 +390,7 @@
                     search: '#search',
                     createTitle: 'Add route',
                     editTitle: 'Edit route',
-                    form: routeForm,
+                    form: function (row) { return routeForm(row, points); },
                     row: function (row) {
                         return '<tr><td>' + ui.escapeHtml(row.route_name) + '</td><td>' + ui.escapeHtml(row.destinations) +
                             '</td><td>' + ui.escapeHtml(row.distance) + '</td><td>' + ui.money(row.fare) +

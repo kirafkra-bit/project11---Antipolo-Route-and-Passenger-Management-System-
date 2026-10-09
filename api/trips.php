@@ -6,8 +6,7 @@
  * POST driver records a trip for themselves; admin may create any trip
  * PUT/DELETE admin only
  *
- * The current trips table has no created_at column, so date/time
- * cannot be returned until the database is changed later.
+ * recorded_at is nullable for trips that predate the timestamp migration.
  */
 
 require_once dirname(__DIR__) . '/includes/bootstrap.php';
@@ -24,16 +23,18 @@ if ($method !== 'GET') {
 function trip_select_sql(): string
 {
     return 'SELECT t.id, t.pickup, t.drop_off, t.number_of_passengers,
-                   t.passengers_id, t.jeepney_id, t.drivers_id,
+                   t.recorded_at, DATE_FORMAT(t.recorded_at, \'%Y-%m-%d\') AS recorded_date,
+                   t.status, t.route_id, t.boarded_count, t.dropped_off_count, t.confirmation_notes,
+                   t.passengers_id, t.jeepney_id, j.route_id AS jeepney_route_id, t.drivers_id,
                    p.name AS passenger_name,
                    d.full_name AS driver_name,
                    j.plate_number, j.jeepney_number, j.route_id,
                    r.route_name, r.destinations, r.distance
             FROM trips t
-            INNER JOIN passengers p ON p.passengers_id = t.passengers_id
+            LEFT JOIN passengers p ON p.passengers_id = t.passengers_id
             INNER JOIN drivers d ON d.id = t.drivers_id
             INNER JOIN jeepney j ON j.id = t.jeepney_id
-            INNER JOIN routes r ON r.id = j.route_id';
+            LEFT JOIN routes r ON r.id = COALESCE(t.route_id, j.route_id)';
 }
 
 function fetch_trip(PDO $pdo, int $id): ?array
@@ -119,9 +120,7 @@ try {
     }
 
     if ($method === 'POST') {
-        if ($user['role'] === 'passenger') {
-            json_error('Passengers cannot record trips. Ask a driver to record the trip.', 403);
-        }
+        require_role(['admin']);
 
         require_fields($input, ['pickup', 'drop_off', 'number_of_passengers', 'passengers_id', 'jeepney_id']);
 
@@ -129,22 +128,14 @@ try {
         $jeepneyId = to_int($input['jeepney_id'], 'jeepney_id');
         $count = to_non_negative_int($input['number_of_passengers'], 'number_of_passengers');
 
-        if ($user['role'] === 'driver') {
-            if (empty($user['driver_id'])) {
-                json_error('Driver profile was not found for this account.', 404);
-            }
-            $driverId = (int) $user['driver_id'];
-        } else {
-            require_role(['admin']);
-            require_fields($input, ['drivers_id']);
-            $driverId = to_int($input['drivers_id'], 'drivers_id');
-        }
+        require_fields($input, ['drivers_id']);
+        $driverId = to_int($input['drivers_id'], 'drivers_id');
 
         assert_trip_foreign_keys($pdo, $passengerId, $jeepneyId, $driverId);
 
         $stmt = $pdo->prepare(
-            'INSERT INTO trips (drop_off, pickup, number_of_passengers, passengers_id, jeepney_id, drivers_id)
-             VALUES (:drop_off, :pickup, :number_of_passengers, :passengers_id, :jeepney_id, :drivers_id)'
+            'INSERT INTO trips (drop_off, pickup, number_of_passengers, passengers_id, jeepney_id, drivers_id, recorded_at)
+             VALUES (:drop_off, :pickup, :number_of_passengers, :passengers_id, :jeepney_id, :drivers_id, CURRENT_TIMESTAMP)'
         );
         $stmt->execute([
             'drop_off'             => trim_string($input['drop_off']),
@@ -162,8 +153,12 @@ try {
         require_role(['admin']);
         require_fields($input, ['id', 'pickup', 'drop_off', 'number_of_passengers', 'passengers_id', 'jeepney_id', 'drivers_id']);
         $id = to_int($input['id'], 'id');
-        if (!fetch_trip($pdo, $id)) {
+        $existingTrip = fetch_trip($pdo, $id);
+        if (!$existingTrip) {
             json_error('Trip not found.', 404);
+        }
+        if (($existingTrip['status'] ?? '') === 'Confirmed') {
+            json_error('Confirmed trips are locked and cannot be edited.', 409);
         }
 
         $passengerId = to_int($input['passengers_id'], 'passengers_id');
@@ -181,7 +176,7 @@ try {
                  passengers_id = :passengers_id,
                  jeepney_id = :jeepney_id,
                  drivers_id = :drivers_id
-             WHERE id = :id'
+             WHERE id = :id AND status <> \'Confirmed\''
         );
         $stmt->execute([
             'drop_off'             => trim_string($input['drop_off']),
@@ -193,19 +188,34 @@ try {
             'id'                   => $id,
         ]);
 
-        json_success(fetch_trip($pdo, $id));
+        $updatedTrip = fetch_trip($pdo, $id);
+        if (!$updatedTrip || ($updatedTrip['status'] ?? '') === 'Confirmed') {
+            json_error('Confirmed trips are locked and cannot be edited.', 409);
+        }
+        json_success($updatedTrip);
     }
 
     if ($method === 'DELETE') {
         require_role(['admin']);
         require_fields($input, ['id']);
         $id = to_int($input['id'], 'id');
-        if (!fetch_trip($pdo, $id)) {
+        $existingTrip = fetch_trip($pdo, $id);
+        if (!$existingTrip) {
             json_error('Trip not found.', 404);
         }
+        if (($existingTrip['status'] ?? '') === 'Confirmed') {
+            json_error('Confirmed trips are locked and cannot be deleted.', 409);
+        }
 
-        $stmt = $pdo->prepare('DELETE FROM trips WHERE id = :id');
+        $stmt = $pdo->prepare('DELETE FROM trips WHERE id = :id AND status <> \'Confirmed\'');
         $stmt->execute(['id' => $id]);
+        if ($stmt->rowCount() === 0) {
+            $currentTrip = fetch_trip($pdo, $id);
+            if ($currentTrip && ($currentTrip['status'] ?? '') === 'Confirmed') {
+                json_error('Confirmed trips are locked and cannot be deleted.', 409);
+            }
+            json_error('Trip not found.', 404);
+        }
         json_success(['message' => 'Trip deleted.', 'id' => $id]);
     }
 

@@ -6,6 +6,7 @@ if (current_user()) {
     web_redirect(ltrim(dashboard_path_for_role(current_user()['role']), '/'));
 }
 
+$signupRoutes = get_pdo()->query('SELECT id, route_name, destinations FROM routes ORDER BY route_name ASC')->fetchAll();
 public_layout_start('Register');
 ?>
 <div class="auth-page signup-page">
@@ -23,7 +24,7 @@ public_layout_start('Register');
         <p class="landing-eyebrow">NEW ACCOUNT</p>
         <h2>Create your PoloNav account</h2>
         <p class="auth-subtitle">Choose the account type that fits your role.</p>
-        <p id="auth-error" class="badge badge-off" hidden></p>
+        <p id="auth-error" class="badge badge-off" role="alert" aria-live="polite" hidden></p>
         <form id="signup-form" class="stack">
             <fieldset class="role-choice">
                 <legend>I want to register as:</legend>
@@ -36,7 +37,7 @@ public_layout_start('Register');
             </div>
             <div>
                 <label for="username">Username</label>
-                <input id="username" name="username" required>
+                <input id="username" name="username" required minlength="3" autocomplete="username">
             </div>
             <div>
                 <label for="password">Password (8+ characters)</label>
@@ -60,6 +61,15 @@ public_layout_start('Register');
                 <small class="muted">JPG or PNG, up to 5 MB.</small>
             </div>
             <div id="driverAttachments" class="stack" hidden>
+                <div>
+                    <label for="requested_route_id">Route you are requesting</label>
+                    <select id="requested_route_id" name="requested_route_id">
+                        <option value="">Select a route...</option>
+                        <?php foreach ($signupRoutes as $route): ?>
+                            <option value="<?= htmlspecialchars((string) $route['id']) ?>"><?= htmlspecialchars($route['route_name']) ?><?= $route['destinations'] ? ' · ' . htmlspecialchars($route['destinations']) : '' ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div class="required-documents">
                     <strong>List of required documents:</strong>
                     <br>

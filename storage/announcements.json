@@ -1,0 +1,72 @@
+[
+    {
+        "id": "ltfrb-2026-02-23-kambal-plaka",
+        "type": "external",
+        "category": "violations",
+        "title": "PRESS RELEASE 23 FEBRUARY 2026: LTFRB SUMMONS 2 JEEPNEY OPERATORS FOR ‘KAMBAL-PLAKA’ SCHEME",
+        "external_url": "https://ltfrb.gov.ph/press-release-23-february-2026-ltfrb-summons-2-jeepney-operators-for-kambal-plaka-scheme/",
+        "image": "assets/images/announcements/kambal-plaka.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-23T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-02-21-facilities",
+        "type": "external",
+        "category": "advisories",
+        "title": "PRESS RELEASE 21 FEBRUARY 2026: LTFRB SEEKS ENHANCED COMMUTING EXPERIENCE THROUGH IMPROVED FACILITIES DURING MEETING WITH MALL TERMINAL OPERATORS",
+        "external_url": "https://ltfrb.gov.ph/press-release-21-february-2026-ltfrb-seeks-enhanced-commuting-experience-through-improved-facilities-during-meeting-with-mall-terminal-operators/",
+        "image": "assets/images/announcements/commuting-facilities.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-21T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-02-18-oil-price-fares",
+        "type": "external",
+        "category": "fare",
+        "title": "PRESS RELEASE 18 FEBRUARY 2026: SERIES OF OIL PRICE HIKE OPENS DOOR FOR FARE HIKE PETITIONS; LTFRB TO HOLD WEEKLY HEARING",
+        "external_url": "https://ltfrb.gov.ph/press-release-18-february-2026-series-of-oil-price-hike-opens-door-for-fare-hike-petitions-ltfrb-to-hold-weekly-hearing/",
+        "image": "assets/images/announcements/oil-price-fares.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-18T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-02-12-central-luzon-inspection",
+        "type": "external",
+        "category": "advisories",
+        "title": "PRESS RELEASE 12 FEBRUARY 2026: CHAIRMAN MENDOZA CONDUCTS PUV INSPECTION IN CENTRAL LUZON, REITERATES NEED TO IMPROVE PH PUBLIC TRANSPORTATION SYSTEM",
+        "external_url": "https://ltfrb.gov.ph/press-release-12-february-2026-chairman-mendoza-conducts-puv-inspection-in-central-luzon-reiterates-need-to-improve-ph-public-transportation-system/",
+        "image": "assets/images/announcements/central-luzon-inspection.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-12T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-02-11-dilapidated-jeepneys",
+        "type": "external",
+        "category": "violations",
+        "title": "PRESS RELEASE 11 FEBRUARY 2026: LTFRB ISSUES SCOs VS SEVERAL OPERATORS OVER DILAPIDATED JEEPNEYS DURING QC INSPECTIONS",
+        "external_url": "https://ltfrb.gov.ph/press-release-11-february-2026-ltfrb-issues-scos-vs-several-operators-over-dilapidated-jeepneys-during-qc-inspections/",
+        "image": "assets/images/announcements/dilapidated-jeepneys.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-11T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-02-06-terminal-inspections",
+        "type": "external",
+        "category": "advisories",
+        "title": "PRESS RELEASE 6 FEBRUARY 2026: NATIONWIDE PUV TERMINAL INSPECTIONS START; 57 BUS OPERATORS SUMMONED, ISSUED WITH VIOLATION NOTIFICATION OVER DILAPIDATED FACILITIES",
+        "external_url": "https://ltfrb.gov.ph/press-release-6-february-2026-nationwide-puv-terminal-inspections-start-57-bus-operators-summoned-issued-with-violation-notification-over-dilapidated-facilities/",
+        "image": "assets/images/announcements/terminal-inspections.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-02-06T00:00:00+08:00"
+    },
+    {
+        "id": "ltfrb-2026-03-17-fare-adjustments",
+        "type": "external",
+        "category": "fare",
+        "title": "PRESS RELEASE 17 MARCH 2026: LTFRB APPROVES FARE ADJUSTMENTS FOR PUVS",
+        "external_url": "https://ltfrb.gov.ph/press-release-17-march-2026-ltfrb-approves-fare-adjustments-for-puvs/",
+        "image": "assets/images/announcements/oil-price-fares.png",
+        "posted_by": "LTFRB",
+        "posted_at": "2026-03-17T00:00:00+08:00"
+    }
+]

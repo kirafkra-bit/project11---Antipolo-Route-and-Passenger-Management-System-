@@ -39,7 +39,7 @@ try {
                 'SELECT t.id, t.pickup, t.drop_off, t.number_of_passengers,
                         p.name AS passenger_name, d.full_name AS driver_name, j.plate_number
                  FROM trips t
-                 INNER JOIN passengers p ON p.passengers_id = t.passengers_id
+                 LEFT JOIN passengers p ON p.passengers_id = t.passengers_id
                  INNER JOIN drivers d ON d.id = t.drivers_id
                  INNER JOIN jeepney j ON j.id = t.jeepney_id
                  ORDER BY t.id DESC
@@ -64,7 +64,7 @@ try {
                 "SELECT j.id, j.plate_number, j.jeepney_number, d.full_name AS driver_name, r.route_name
                  FROM jeepney j
                  INNER JOIN drivers d ON d.id = j.drivers_id
-                 INNER JOIN routes r ON r.id = j.route_id
+                 LEFT JOIN routes r ON r.id = j.route_id
                  WHERE d.status = 'active'
                  ORDER BY j.id DESC"
             ),
@@ -90,24 +90,36 @@ try {
                 $pdo,
                 'SELECT j.id, j.plate_number, j.jeepney_number, r.route_name, r.destinations, r.distance, r.fare, r.latitude, r.longitude
                  FROM jeepney j
+                 INNER JOIN drivers d ON d.id = j.drivers_id
                  INNER JOIN routes r ON r.id = j.route_id
-                 WHERE j.drivers_id = :id',
+                 WHERE j.drivers_id = :id
+                   AND d.route_assignment_status = \'approved\'
+                   AND d.route_id = j.route_id',
                 ['id' => $driverId]
             ),
             'recent_trips' => fetch_all(
                 $pdo,
-                'SELECT t.id, t.pickup, t.drop_off, t.number_of_passengers, p.name AS passenger_name, j.plate_number, r.route_name
+                'SELECT t.id, t.pickup, t.drop_off, t.number_of_passengers,
+                        DATE_FORMAT(t.recorded_at, \'%Y-%m-%d\') AS recorded_date,
+                        p.name AS passenger_name, j.plate_number, r.route_name
                  FROM trips t
-                 INNER JOIN passengers p ON p.passengers_id = t.passengers_id
+                 LEFT JOIN passengers p ON p.passengers_id = t.passengers_id
                  INNER JOIN jeepney j ON j.id = t.jeepney_id
-                 INNER JOIN routes r ON r.id = j.route_id
+                 LEFT JOIN routes r ON r.id = COALESCE(t.route_id, j.route_id)
                  WHERE t.drivers_id = :id
                  ORDER BY t.id DESC
                  LIMIT 10',
                 ['id' => $driverId]
             ),
             'stats' => [
-                'my_trips'    => count_where($pdo, 'SELECT COUNT(*) FROM trips WHERE drivers_id = :id', ['id' => $driverId]),
+                'my_trips'    => count_where(
+                    $pdo,
+                    'SELECT COUNT(*) FROM trips
+                     WHERE drivers_id = :id
+                       AND recorded_at >= CURRENT_DATE()
+                       AND recorded_at < CURRENT_DATE() + INTERVAL 1 DAY',
+                    ['id' => $driverId]
+                ),
                 'my_jeepneys' => count_where($pdo, 'SELECT COUNT(*) FROM jeepney WHERE drivers_id = :id', ['id' => $driverId]),
             ],
         ]);

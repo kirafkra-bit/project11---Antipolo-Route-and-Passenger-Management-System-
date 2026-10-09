@@ -23,11 +23,12 @@ public_layout_start('Sign in');
         <p class="landing-eyebrow">WELCOME BACK</p>
         <h2>Sign in to PoloNav</h2>
         <p class="muted">Use the account your role was given. You will land on that role’s desk only.</p>
-        <p id="auth-error" class="badge badge-off" hidden></p>
+        <p id="auth-error" class="badge badge-off" role="alert" aria-live="polite" hidden></p>
         <form id="signin-form" class="stack">
             <div>
                 <label for="username">Username</label>
                 <input id="username" name="username" required autocomplete="username">
+                <small class="muted">Sign in with your username. Email sign-in is not configured.</small>
             </div>
             <div>
                 <label for="password">Password</label>
